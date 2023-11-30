@@ -21,11 +21,18 @@ const INITIAL_EVENTS_SUMMARY: EventsSummaryEntity = {
   id: GLOBAL_EVENTS_SUMMARY_KEY,
   ownershipTransferredsCount: BigInt(0),
   tradesCount: BigInt(0),
+  totalBuys: BigInt(0),
+  totalSells: BigInt(0),
 };
 
 const INITIAL_TRADER: TraderEntity = {
   id: "0x00000",
   numberOfTrades: BigInt(0),
+  ethAmountFromBuys: BigInt(0),
+  ethAmountFromSells: BigInt(0),
+  totalBuys: BigInt(0),
+  totalSells: BigInt(0),
+  provisionalProfitOrLoss: BigInt(0),
 };
 
 FriendtechSharesV1Contract_OwnershipTransferred_loader(({ event, context }) => {
@@ -71,6 +78,12 @@ FriendtechSharesV1Contract_Trade_handler(({ event, context }) => {
   let nextSummaryEntity = {
     ...currentSummaryEntity,
     tradesCount: currentSummaryEntity.tradesCount + BigInt(1),
+    totalBuys: event.params.isBuy
+      ? currentSummaryEntity.totalBuys + BigInt(1)
+      : currentSummaryEntity.totalBuys,
+    totalSells: !event.params.isBuy
+      ? currentSummaryEntity.totalSells + BigInt(1)
+      : currentSummaryEntity.totalSells,
   };
 
   let tradeEntity: TradeEntity = {
@@ -96,6 +109,22 @@ FriendtechSharesV1Contract_Trade_handler(({ event, context }) => {
     ...TraderEntity,
     id: event.params.trader.toString(),
     numberOfTrades: TraderEntity.numberOfTrades + BigInt(1),
+    totalBuys: event.params.isBuy
+      ? TraderEntity.totalBuys + BigInt(1)
+      : TraderEntity.totalBuys,
+    totalSells: !event.params.isBuy
+      ? TraderEntity.totalSells + BigInt(1)
+      : TraderEntity.totalSells,
+    ethAmountFromBuys: event.params.isBuy
+      ? TraderEntity.ethAmountFromBuys + event.params.ethAmount
+      : TraderEntity.ethAmountFromBuys,
+    ethAmountFromSells: !event.params.isBuy
+      ? TraderEntity.ethAmountFromSells + event.params.ethAmount
+      : TraderEntity.ethAmountFromSells,
+    provisionalProfitOrLoss: event.params.isBuy
+      ? TraderEntity.provisionalProfitOrLoss - event.params.ethAmount
+      : TraderEntity.provisionalProfitOrLoss +
+        (event.params.ethAmount * BigInt(9)) / BigInt(10), // take 10% fee into account.
   };
 
   context.Trader.set(nextTraderEntity);

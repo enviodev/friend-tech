@@ -1,7 +1,7 @@
 name: friend tech
 networks:
   - id: 8453
-    start_block: 0
+    start_block: 7000000
     contracts:
       - name: FriendtechSharesV1
         address:

@@ -5,6 +5,9 @@ type EventsSummary {
   ownershipTransferredsCount: BigInt!
   trade: [Trade!]! @derivedFrom(field: "eventsSummary")
   tradesCount: BigInt!
+  totalBuys: BigInt!
+  totalSells: BigInt!
+  totalProtocolEthAmount: BigInt!
 }
 
 type OwnershipTransferred {
@@ -30,5 +33,22 @@ type Trade {
 type Trader {
   id: ID!
   numberOfTrades: BigInt!
+  ethAmountFromBuys: BigInt!
+  ethAmountFromSells: BigInt!
+  totalBuys: BigInt!
+  totalSells: BigInt!
+  provisionalProfitOrLoss: BigInt!
   trades: [Trade!]! @derivedFrom(field: "trader")
+}
+
+type Subject {
+  id: ID!
+  numberOfTrades: BigInt!
+  totalBuys: BigInt!
+  totalSells: BigInt!
+  totalShareBuys: BigInt!
+  totalShareSells: BigInt!
+  supply: BigInt!
+  totalSubjectEthAmount: BigInt!
+  trades: [Trade!]! @derivedFrom(field: "subject")
 }
